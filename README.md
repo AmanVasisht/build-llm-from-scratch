@@ -1,13 +1,205 @@
 # build-llm-from-scratch
 Building a Large Language Model from scratch: implementing tokenization, transformer architecture, training pipeline, and optimization techniques.
 
+# Build LLM From Scratch
 
+A GPT-2 style autoregressive language model implemented from scratch in PyTorch. The project covers the full pipeline — tokenization, dataset preparation, model architecture, training, and text generation — with no use of HuggingFace or any high-level ML framework.
+
+---
+
+## Project Structure
+
+```
+build_llm_from_scratch/
+│
+├── data/
+│   └── train.txt                        # Raw text corpus for training
+│
+├── src/
+│   ├── __init__.py
+│   ├── config.py                        # All hyperparameters in one place
+│   │
+│   ├── preprocessing/
+│   │   ├── __init__.py
+│   │   └── dataloader.py                # GPTDatasetV1, create_dataloader_v1
+│   │
+│   ├── model/
+│   │   ├── __init__.py
+│   │   └── architecture.py              # GPTModel, TransformerBlock, MultiHeadAttention,
+│   │                                      FeedForward, LayerNorm, GELU
+│   │
+│   ├── training/
+│   │   ├── __init__.py
+│   │   └── trainer.py                   # train_model_simple, evaluate_model, loss utils
+│   │
+│   └── generation/
+│       ├── __init__.py
+│       └── generate.py                  # generate, text_to_token_ids, token_ids_to_text
+│
+├── checkpoints/
+│   └── model_and_optimizer.pth          # Saved after training
+│
+├── outputs/
+├── notebooks/
+│
+├── main.py                              # Train the model
+├── inference.py                         # Load checkpoint and generate text
+├── requirements.txt
+└── .gitignore
+```
+
+---
+
+## Pipeline Overview
+
+```
+Raw Text
+   │
+   ▼
+Tokenizer (tiktoken GPT-2 BPE)
+   │
+   ▼
+Sliding Window Dataset  ──►  DataLoader (train / val split)
+   │
+   ▼
+GPTModel
+   ├── Token Embedding + Positional Embedding
+   ├── Dropout
+   ├── N x TransformerBlock
+   │     ├── LayerNorm
+   │     ├── MultiHeadAttention (causal mask)
+   │     ├── Dropout + Residual
+   │     ├── LayerNorm
+   │     ├── FeedForward (GELU activation)
+   │     └── Dropout + Residual
+   ├── Final LayerNorm
+   └── Linear Output Head (weight tied with token embedding)
+   │
+   ▼
+AdamW Optimizer  ──►  Cross Entropy Loss  ──►  Training Loop
+   │
+   ▼
+Checkpoint saved to checkpoints/
+   │
+   ▼
+inference.py  ──►  Generate text from prompt
+```
+
+---
+
+## Quickstart
+
+### 1. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Add training data
+Place any `.txt` file inside `data/` and name it `train.txt`. The model was originally trained on a short story (~5k tokens) — any plain text corpus works.
+
+### 3. Configure
+Edit `src/config.py` to set model size and training hyperparameters:
+
+```python
+vocab_size      = 50257   # GPT-2 vocabulary size
+context_length  = 256     # Sequence length (tokens)
+emb_dim         = 768     # Embedding dimension
+n_heads         = 12      # Attention heads
+n_layers        = 12      # Transformer blocks
+drop_rate       = 0.1     # Dropout probability
+qkv_bias        = False
+
+batch_size      = 2
+stride          = 128
+train_ratio     = 0.90
+epoch           = 10
+```
+
+### 4. Train
+```bash
+python main.py
+```
+
+Training prints loss at every `eval_freq` steps and generates a sample after each epoch. Checkpoint is saved to `checkpoints/model_and_optimizer.pth` at the end.
+
+### 5. Generate text
+```bash
+python inference.py
+```
+
+Edit the prompt inside `inference.py`:
+```python
+token_ids = generate(
+    model=model,
+    idx=text_to_token_ids("Your prompt here", tokenizer),
+    max_new_tokens=15,
+    context_size=config.context_length,
+    top_k=25,
+    temperature=1.4
+)
+```
+
+---
+
+## Model Architecture
+
+### MultiHeadAttention
+Implements scaled dot-product causal self-attention. The causal mask is registered as a buffer (upper triangular), ensuring each token can only attend to past tokens. Q, K, V projections are separate linear layers with an optional bias controlled by `qkv_bias`.
+
+### TransformerBlock
+Each block follows the Pre-LayerNorm (Pre-LN) pattern — normalization is applied before attention and before the feed-forward sublayer, with residual connections around both.
+
+### FeedForward
+Two linear layers with a 4x expansion in the hidden dimension, using a custom GELU activation (tanh approximation matching GPT-2's original implementation).
+
+### GPTModel
+Combines token embeddings and learned positional embeddings, passes through N transformer blocks, applies a final layer norm, and projects to vocabulary logits via a linear head. The output head shares weights with the token embedding layer (weight tying).
+
+---
+
+## Training Details
+
+| Setting | Value |
+|---|---|
+| Optimizer | AdamW |
+| Learning rate | 0.0004 |
+| Weight decay | 0.1 |
+| Loss function | Cross Entropy |
+| Evaluation | Every 5 steps on both train and val |
+| Generation during training | After every epoch (greedy decoding) |
+
+---
+
+## Inference Details
+
+The `generate()` function supports:
+- **Greedy decoding** — picks the highest probability token at each step (default)
+- **Temperature scaling** — controls randomness of output (`temperature > 0`)
+- **Top-k sampling** — restricts sampling to the top-k most likely tokens
+- **Early stopping** — stops if `eos_id` token is generated
+
+---
+
+## Dependencies
+
+```
+torch
+tiktoken
+```
+
+---
+
+## Notes
+
+- This is a from-scratch implementation for learning purposes — no pretrained weights are used
+- The architecture closely follows GPT-2 small but is trained on a tiny corpus, so generated text is limited in quality
+- The goal is to understand every component of a transformer LLM by building it line by line
 
 
 ## Acknowledgements
 
 This project follows and implements concepts from the book 
-"Build a Large Language Model (From Scratch)" by Sebastian Raschka and.
+"Build a Large Language Model (From Scratch)" by Sebastian Raschka.
 
 The goal of this repository is to reproduce, experiment with, and deepen 
 understanding of LLM architectures by implementing them step-by-step.
