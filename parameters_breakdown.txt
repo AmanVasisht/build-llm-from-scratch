@@ -17,6 +17,9 @@ Config used:
         Output Head: 768*768 = 0.59 million
         Total: 2.35 million
     Feed Forward NN: 768*(4*768)+768*(4*768) = 4.72 million
-    Total: 12*(2.35 million + 4.72 million) = 8.48 million
+    Total: 12*(2.35 million + 4.72 million) = 84.84 million
 
+3) Final layer:
+    Softmax output: 768*50257 = 38.59 million
 
+TOTAL PARAMETERS: 38.6 m + 84.84 m + 38.59 m ~~~ 162 million
