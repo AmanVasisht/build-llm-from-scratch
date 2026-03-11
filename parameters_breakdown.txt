@@ -1,0 +1,22 @@
+Config used:
+    Context_length=4
+    Dimensions=768
+    vocab_size=50257
+    qkv_matrices=3
+    projection_space=4
+    attention_heads=12
+
+1) embedding parameters:
+    Token embeddings: 50257*768 = 38.59 million
+    Positional embeddings: 4*768 = 3072
+    Total: 38.6 million
+
+2) Transformer block:
+    Multi Head Attention:
+        Query, Key, Value weights: 3*768*768 = 1.76 million
+        Output Head: 768*768 = 0.59 million
+        Total: 2.35 million
+    Feed Forward NN: 768*(4*768)+768*(4*768) = 4.72 million
+    Total: 12*(2.35 million + 4.72 million) = 8.48 million
+
+
