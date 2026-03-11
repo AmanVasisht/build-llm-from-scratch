@@ -1,0 +1,8 @@
+Config used:
+Context length=4
+Dimensions=768
+vocab size=50257
+
+embedding parameters:
+Token embeddings: 50257*768 = 
+Positional embeddings: 4*768 = 
