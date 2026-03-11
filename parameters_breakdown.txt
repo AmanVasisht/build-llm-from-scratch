@@ -15,11 +15,20 @@ Config used:
     Multi Head Attention:
         Query, Key, Value weights: 3*768*768 = 1.76 million
         Output Head: 768*768 = 0.59 million
+        LayerNorm 1 (scale + shift):  768 + 768 = 1,536
+        LayerNorm 2 (scale + shift):  768 + 768 = 1,536
         Total: 2.35 million
-    Feed Forward NN: 768*(4*768)+768*(4*768) = 4.72 million
-    Total: 12*(2.35 million + 4.72 million) = 84.84 million
+    Feed Forward NN: 
+        Linear 1 weights:  768 × 3072 = 2.36 million
+        Linear 1 bias:           3072 = 3,072
+        Linear 2 weights: 3072 × 768  = 2.36 million
+        Linear 2 bias:            768 = 768
+        Total: 4.72 million
+    Total: 12*(2.35 million + 4.72 million) = 85.01 million
 
 3) Final layer:
-    Softmax output: 768*50257 = 38.59 million
+    Final LayerNorm: 1,536
+    Output head: 0 ← weight tied, no new params
 
-TOTAL PARAMETERS: 38.6 m + 84.84 m + 38.59 m ~~~ 162 million
+
+TOTAL PARAMETERS: 38.6 m + 85.01 m + 1536 ~~~ 123.6 million
