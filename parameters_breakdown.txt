@@ -28,7 +28,7 @@ Config used:
 
 3) Final layer:
     Final LayerNorm: 1,536
-    Output head: 50257*768 = 38.59 million ← weight tied, no new params
+    Output head: 768*50257 = 38.59 million ← weights not tied, no new params
 
 
 TOTAL PARAMETERS: 38.8 m + 85.01 m + 1536 + 38.59 m ~~~ 162 million
