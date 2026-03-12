@@ -1,5 +1,5 @@
 Config used:
-    Context_length=4
+    Context_length=256
     Dimensions=768
     vocab_size=50257
     qkv_matrices=3
@@ -8,8 +8,8 @@ Config used:
 
 1) embedding parameters:
     Token embeddings: 50257*768 = 38.59 million
-    Positional embeddings: 4*768 = 3072
-    Total: 38.6 million
+    Positional embeddings: 256*768 = 0.19 million
+    Total: 38.8 million
 
 2) Transformer block:
     Multi Head Attention:
@@ -19,16 +19,16 @@ Config used:
         LayerNorm 2 (scale + shift):  768 + 768 = 1,536
         Total: 2.35 million
     Feed Forward NN: 
-        Linear 1 weights:  768 × 3072 = 2.36 million
-        Linear 1 bias:           3072 = 3,072
-        Linear 2 weights: 3072 × 768  = 2.36 million
-        Linear 2 bias:            768 = 768
+        Linear 1 weights: 768*768*4  = 2.36 million
+        Linear 1 bias: 4*768 = 3,072
+        Linear 2 weights: 4*768*768  = 2.36 million
+        Linear 2 bias: 768 = 768
         Total: 4.72 million
     Total: 12*(2.35 million + 4.72 million) = 85.01 million
 
 3) Final layer:
     Final LayerNorm: 1,536
-    Output head: 0 ← weight tied, no new params
+    Output head: 50257*768 = 38.59 million ← weight tied, no new params
 
 
-TOTAL PARAMETERS: 38.6 m + 85.01 m + 1536 ~~~ 123.6 million
+TOTAL PARAMETERS: 38.8 m + 85.01 m + 1536 + 38.59 m ~~~ 162 million
