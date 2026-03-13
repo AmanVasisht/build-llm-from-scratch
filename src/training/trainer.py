@@ -1,9 +1,9 @@
 import torch
-from src.generation.generate import generate_and_print_sample
+
 
 def calc_loss_batch(input_batch, target_batch, model, device):
     input_batch, target_batch = input_batch.to(device), target_batch.to(device)
-    logits = model(input_batch)
+    logits, _ = model(input_batch)   # ← unpack tuple, discard cache during training
     loss = torch.nn.functional.cross_entropy(logits.flatten(0, 1), target_batch.flatten())
     return loss
 
@@ -15,8 +15,6 @@ def calc_loss_loader(data_loader, model, device, num_batches=None):
     elif num_batches is None:
         num_batches = len(data_loader)
     else:
-        # Reduce the number of batches to match the total number of batches in the data loader
-        # if num_batches exceeds the number of batches in the data loader
         num_batches = min(num_batches, len(data_loader))
     for i, (input_batch, target_batch) in enumerate(data_loader):
         if i < num_batches:
@@ -25,6 +23,7 @@ def calc_loss_loader(data_loader, model, device, num_batches=None):
         else:
             break
     return total_loss / num_batches
+
 
 def evaluate_model(model, train_loader, val_loader, device, eval_iter):
     model.eval()
@@ -35,26 +34,38 @@ def evaluate_model(model, train_loader, val_loader, device, eval_iter):
     return train_loss, val_loss
 
 
+def generate_and_print_sample(model, tokenizer, device, start_context):
+    from src.generation.generate import text_to_token_ids, token_ids_to_text, generate
+    model.eval()
+    context_size = model.pos_emb.weight.shape[0]
+    encoded = text_to_token_ids(start_context, tokenizer).to(device)
+    with torch.no_grad():
+        token_ids = generate(
+            model=model, idx=encoded,
+            max_new_tokens=50, context_size=context_size
+        )
+    decoded_text = token_ids_to_text(token_ids, tokenizer)
+    print(decoded_text.replace("\n", " "))
+    model.train()
+
+
 def train_model_simple(model, train_loader, val_loader, optimizer, device, num_epochs,
-                       eval_freq, eval_iter, start_context, tokenizer, save_model= True):
-    # Initialize lists to track losses and tokens seen
+                       eval_freq, eval_iter, start_context, tokenizer, save_model=True):
     train_losses, val_losses, track_tokens_seen = [], [], []
     tokens_seen, global_step = 0, -1
 
-    # Main training loop
     for epoch in range(num_epochs):
-        model.train()  # Set model to training mode
-        
+        model.train()
+
         for input_batch, target_batch in train_loader:
-            optimizer.zero_grad() # Reset loss gradients from previous batch iteration
+            optimizer.zero_grad()
             loss = calc_loss_batch(input_batch, target_batch, model, device)
-            loss.backward() # Calculate loss gradients
-            optimizer.step() # Update model weights using loss gradients
-            tokens_seen += input_batch.numel() # Returns the total number of elements (or tokens) in the input_batch.
+            loss.backward()
+            optimizer.step()
+            tokens_seen += input_batch.numel()
             global_step += 1
 
-            # Optional evaluation step
-            if global_step % eval_freq == 0: 
+            if global_step % eval_freq == 0:
                 train_loss, val_loss = evaluate_model(
                     model, train_loader, val_loader, device, eval_iter)
                 train_losses.append(train_loss)
@@ -63,16 +74,13 @@ def train_model_simple(model, train_loader, val_loader, optimizer, device, num_e
                 print(f"Ep {epoch+1} (Step {global_step:06d}): "
                       f"Train loss {train_loss:.3f}, Val loss {val_loss:.3f}")
 
-        # Print a sample text after each epoch
-        generate_and_print_sample(
-            model, tokenizer, device, start_context
-        )
+        generate_and_print_sample(model, tokenizer, device, start_context)
+
     if save_model is True:
         optimizer = torch.optim.AdamW(model.parameters(), lr=0.0004, weight_decay=0.1)
         torch.save({
-                        "model_state_dict": model.state_dict(),
-                        "optimizer_state_dict": optimizer.state_dict(),
-                        }, 
-                        "checkpoints/model_and_optimizer.pth"
-                    )
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+        }, "checkpoints/model_and_optimizer.pth")
+
     return train_losses, val_losses, track_tokens_seen
