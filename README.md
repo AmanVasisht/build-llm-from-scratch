@@ -34,7 +34,7 @@ build_llm_from_scratch/
 │   │
 │   └── generation/
 │       ├── __init__.py
-│       └── generate.py                  # generate, text_to_token_ids, token_ids_to_text
+│       └── generate.py                  # generate, generate_with_cache, text_to_token_ids, token_ids_to_text
 │
 ├── checkpoints/
 │   └── model_and_optimizer.pth          # Saved after training
@@ -44,6 +44,7 @@ build_llm_from_scratch/
 │
 ├── main.py                              # Train the model
 ├── inference.py                         # Load checkpoint and generate text
+├── inference_kv.py                      # Generate text with KV cache optimization
 ├── requirements.txt
 └── .gitignore
 ```
@@ -82,7 +83,8 @@ AdamW Optimizer  ──►  Cross Entropy Loss  ──►  Training Loop
 Checkpoint saved to checkpoints/
    │
    ▼
-inference.py  ──►  Generate text from prompt
+inference.py     ──►  Generate text from prompt
+inference_kv.py  ──►  Generate text with KV cache (2x faster)
 ```
 
 ---
@@ -127,16 +129,9 @@ Training prints loss at every `eval_freq` steps and generates a sample after eac
 python inference.py
 ```
 
-Edit the prompt inside `inference.py`:
-```python
-token_ids = generate(
-    model=model,
-    idx=text_to_token_ids("Your prompt here", tokenizer),
-    max_new_tokens=15,
-    context_size=config.context_length,
-    top_k=25,
-    temperature=1.4
-)
+### 6. Generate text with KV cache
+```bash
+python inference_kv.py
 ```
 
 ---
@@ -180,6 +175,21 @@ The `generate()` function supports:
 
 ---
 
+## KV Cache
+
+KV cache is implemented as an inference optimization in `inference_kv.py`. Without cache, K and V tensors are recomputed for all tokens at every generation step — compute grows quadratically with sequence length. With cache, K and V for past tokens are stored in memory and reused, so only the new token's K and V are computed at each step — compute grows linearly.
+
+```
+without cache:  step N recomputes K,V for all N tokens  →  O(N²)
+with cache:     step N computes K,V for 1 token only    →  O(N)
+```
+
+Measured speedup on this model: **~2x faster** for 15 token generation. The benefit grows significantly with longer sequences and larger models.
+
+The cache is a list of 12 dictionaries (one per transformer block), each storing K and V tensors in RAM. It lives only for the duration of the generation call — nothing is persisted to disk.
+
+---
+
 ## Dependencies
 
 ```
@@ -195,11 +205,12 @@ tiktoken
 - The architecture closely follows GPT-2 small but is trained on a tiny corpus, so generated text is limited in quality
 - The goal is to understand every component of a transformer LLM by building it line by line
 
+---
 
 ## Acknowledgements
 
-This project follows and implements concepts from the book 
+This project follows and implements concepts from the book
 "Build a Large Language Model (From Scratch)" by Sebastian Raschka.
 
-The goal of this repository is to reproduce, experiment with, and deepen 
+The goal of this repository is to reproduce, experiment with, and deepen
 understanding of LLM architectures by implementing them step-by-step.
