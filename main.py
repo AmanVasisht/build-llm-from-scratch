@@ -88,11 +88,11 @@ loss_train, loss_val, tokens_seen, lr_history = train_model_simple(
     start_context="He found the couple",
     tokenizer=enc,
     save_model=True,
-    use_scheduler=True,
-    max_lr=0.0004,
-    min_lr=1e-5,
-    warmup_steps=20,
-    max_grad_norm=1.0
+    use_scheduler=config.use_scheduler,
+    max_lr=config.max_lr,
+    min_lr=config.min_lr,
+    warmup_steps=config.warmup_steps,
+    max_grad_norm=config.max_grad_norm
 )
 
 t_end = time.time()

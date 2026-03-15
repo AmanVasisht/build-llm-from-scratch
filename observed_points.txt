@@ -1,0 +1,8 @@
+Common rule of thumb:
+warmup_steps = 1% to 5% of total_steps
+In my case:
+total_steps = epochs × batches_per_epoch
+            = 10 × 13751
+            = 137,510 steps
+
+1% of 137,510 = ~1375 warmup steps

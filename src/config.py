@@ -9,3 +9,11 @@ qkv_bias= False     # Query-key-value bias
 train_ratio= 0.90
 batch_size=2
 epoch=10
+# scheduler
+use_scheduler = True
+max_lr        = 0.0004
+min_lr        = 1e-5
+warmup_steps  = 430
+
+# gradient clipping
+max_grad_norm = 1.0
