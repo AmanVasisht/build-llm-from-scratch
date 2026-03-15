@@ -175,9 +175,16 @@ The `generate()` function supports:
 
 ---
 
+## Changes Implemented on basic llm architecture:
+- KV cache: The network needs only last hidden state to predict next token. the last hidden state depends only on last token's query vector and all key and value vectors. Thus to keep on predicting tokens, the same previous key and value vectors are utilised, only query vector changes. Thus they can be preserved in a cache.
+- Learning rate scheduler: A fixed lr is too cautious early and too aggressive late. Thus there is need of big steps to learn fast in early training and small steps to learn slowly in late training. In short lr scheduler controls how big each step is over time
+warmup phase:    lr grows from 0 → 0.0004 over first N steps
+cosine decay:    lr gradually decreases from 0.0004 → 0 following a cosine curve
+- Gradient clipping: During backpropagation, gradients can sometimes become very large — called **exploding gradients**. This causes the optimizer to make a massive weight update in one step, completely destabilizing training. In short gradient clipping controls how big each step can ever be at most.
+
 ## KV Cache
 
-KV cache is implemented as an inference optimization in `inference_kv.py`. Without cache, K and V tensors are recomputed for all tokens at every generation step — compute grows quadratically with sequence length. With cache, K and V for past tokens are stored in memory and reused, so only the new token's K and V are computed at each step — compute grows linearly.
+KV cache is implemented as an inference optimization in `inference_kv.py`.
 
 ```
 without cache:  step N recomputes K,V for all N tokens  →  O(N²)
