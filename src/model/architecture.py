@@ -107,6 +107,35 @@ class LayerNorm(nn.Module):
         norm_x = (x - mean) / torch.sqrt(var + self.eps)
         return self.scale * norm_x + self.shift
 
+class ApplyRoPE(nn.Module):
+    def __init__(self, head_dim, context_length):
+        super().__init__()
+        i = torch.arange(0, head_dim, 2).float()
+        freqs = 1.0 / (10000 ** (i / head_dim))
+        pos = torch.arange(context_length).float()
+        angles = pos.unsqueeze(1) * freqs.unsqueeze(0)  # [context_length, head_dim/2]
+        self.register_buffer("angles", angles)
+    def forward(self, x):
+        # x shape: [batch, num_heads, seq_len, head_dim]
+        seq_len = x.shape[2]
+
+        # split into pairs
+        x1 = x[..., 0::2]  # even dimensions [batch, heads, seq_len, head_dim/2]
+        x2 = x[..., 1::2]  # odd dimensions  [batch, heads, seq_len, head_dim/2]
+
+        # get cos and sin for current sequence length
+        cos = torch.cos(self.angles[:seq_len, :])  # [seq_len, head_dim/2]
+        sin = torch.sin(self.angles[:seq_len, :])  # [seq_len, head_dim/2]
+
+        # apply rotation
+        x1_new = x1 * cos - x2 * sin
+        x2_new = x1 * sin + x2 * cos
+
+        # interleave x1_new and x2_new back together
+        x_rotated = torch.stack([x1_new, x2_new], dim=-1)
+        x_rotated = x_rotated.flatten(-2)  # [batch, heads, seq_len, head_dim]
+
+        return x_rotated.type_as(x)
 
 class GELU(nn.Module):
     def __init__(self):
