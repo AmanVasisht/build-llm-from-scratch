@@ -1,9 +1,10 @@
 import torch
 import torch.nn as nn
+import src.config as cfg
 
 
 class MultiHeadAttention(nn.Module):
-    def __init__(self, d_in, d_out, context_length, dropout, num_heads, qkv_bias=False):
+    def __init__(self, d_in, d_out, context_length, dropout, num_heads, qkv_bias=False, use_rope=False):
         super().__init__()
         assert (d_out % num_heads == 0), \
             "d_out must be divisible by num_heads"
@@ -11,7 +12,9 @@ class MultiHeadAttention(nn.Module):
         self.d_out = d_out
         self.num_heads = num_heads
         self.head_dim = d_out // num_heads
-
+        self.use_rope = use_rope
+        if use_rope:
+            self.rope = ApplyRoPE(self.head_dim, context_length)
         self.W_query = nn.Linear(d_in, d_out, bias=qkv_bias)
         self.W_key = nn.Linear(d_in, d_out, bias=qkv_bias)
         self.W_value = nn.Linear(d_in, d_out, bias=qkv_bias)
@@ -38,7 +41,9 @@ class MultiHeadAttention(nn.Module):
         if cache is not None:
             keys   = torch.cat([cache["key"],   keys],   dim=2)
             values = torch.cat([cache["value"], values], dim=2)
-
+        if self.use_rope:
+            queries = self.rope(queries)
+            keys    = self.rope(keys)
         # update cache with latest full K, V
         new_cache = {"key": keys, "value": values}
 
@@ -72,7 +77,8 @@ class TransformerBlock(nn.Module):
             context_length=cfg.context_length,
             num_heads=cfg.n_heads,
             dropout=cfg.drop_rate,
-            qkv_bias=cfg.qkv_bias)
+            qkv_bias=cfg.qkv_bias,
+            use_rope=cfg.use_rope)
         self.ff = FeedForward(cfg)
         self.norm1 = LayerNorm(cfg.emb_dim)
         self.norm2 = LayerNorm(cfg.emb_dim)
@@ -179,15 +185,18 @@ class GPTModel(nn.Module):
 
         tok_embeds = self.tok_emb(in_idx)
 
-        # if cache exists, continue positional encoding from where we left off
-        if cache is None or cache[0] is None:
-            pos = torch.arange(seq_len, device=in_idx.device)
+        if not cfg.use_rope:
+            # learned positional embedding
+            if cache is None or cache[0] is None:
+                pos = torch.arange(seq_len, device=in_idx.device)
+            else:
+                past_len = cache[0]["key"].shape[2]
+                pos = torch.arange(past_len, past_len + seq_len, device=in_idx.device)
+            x = tok_embeds + self.pos_emb(pos)
         else:
-            past_len = cache[0]["key"].shape[2]
-            pos = torch.arange(past_len, past_len + seq_len, device=in_idx.device)
+            # rope handles position inside attention, no addition needed here
+            x = tok_embeds
 
-        pos_embeds = self.pos_emb(pos)
-        x = tok_embeds + pos_embeds
         x = self.drop_emb(x)
 
         # loop through blocks manually to pass cache per block
