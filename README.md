@@ -175,12 +175,14 @@ The `generate()` function supports:
 
 ---
 
-## Changes Implemented on basic llm architecture:
-- KV cache: The network needs only last hidden state to predict next token. the last hidden state depends only on last token's query vector and all key and value vectors. Thus to keep on predicting tokens, the same previous key and value vectors are utilised, only query vector changes. Thus they can be preserved in a cache.
-- Learning rate scheduler: A fixed lr is too cautious early and too aggressive late. Thus there is need of big steps to learn fast in early training and small steps to learn slowly in late training. In short lr scheduler controls how big each step is over time
+## Implemented features on basic llm architecture:
+- **KV cache**: The network needs only last hidden state to predict next token. the last hidden state depends only on last token's query vector and all key and value vectors. Thus to keep on predicting tokens, the same previous key and value vectors are utilised, only query vector changes. Thus they can be preserved in a cache.
+- **Learning rate scheduler**: A fixed lr is too cautious early and too aggressive late. Thus there is need of big steps to learn fast in early training and small steps to learn slowly in late training. In short lr scheduler controls how big each step is over time
 warmup phase:    lr grows from 0 → 0.0004 over first N steps
 cosine decay:    lr gradually decreases from 0.0004 → 0 following a cosine curve
-- Gradient clipping: During backpropagation, gradients can sometimes become very large — called **exploding gradients**. This causes the optimizer to make a massive weight update in one step, completely destabilizing training. In short gradient clipping controls how big each step can ever be at most.
+- **Gradient clipping**: During backpropagation, gradients can sometimes become very large — called **exploding gradients**. This causes the optimizer to make a massive weight update in one step, completely destabilizing training. In short gradient clipping controls how big each step can ever be at most.
+- **RoPE (Rotary Positional Embeddings)**: Added Rotary Positional Embeddings as an optional alternative to learnable positional embeddings. Unlike standard positional embeddings that are added directly to token embeddings, RoPE injects positional information by rotating the **query (Q)** and **key (K)** vectors in the attention mechanism. This preserves the magnitude of token embeddings while encoding positional relationships through rotation in the embedding space. The rotation angles are derived from sinusoidal frequency functions, similar in spirit to sinusoidal positional encodings. This approach enables the model to naturally capture **relative positional relationships** between tokens and has become widely used in modern large language models.
+
 
 ## KV Cache
 
