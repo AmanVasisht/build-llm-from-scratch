@@ -17,3 +17,6 @@ warmup_steps  = 430
 
 # gradient clipping
 max_grad_norm = 1.0
+
+#positional embedding
+use_rope = True
