@@ -234,3 +234,6 @@ This project follows and implements concepts from the book
 
 The goal of this repository is to reproduce, experiment with, and deepen
 understanding of LLM architectures by implementing them step-by-step.
+
+## Related Writing
+- [Positional Embeddings in LLMs — Sinusoidal, Learned and RoPE](https://medium.com/p/bfd88cedd4c4?postPublishedType=initial)

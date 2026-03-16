@@ -132,7 +132,7 @@ class ApplyRoPE(nn.Module):
         # get cos and sin for current sequence length
         cos = torch.cos(self.angles[:seq_len, :])  # [seq_len, head_dim/2]
         sin = torch.sin(self.angles[:seq_len, :])  # [seq_len, head_dim/2]
-
+    
         # apply rotation
         x1_new = x1 * cos - x2 * sin
         x2_new = x1 * sin + x2 * cos
