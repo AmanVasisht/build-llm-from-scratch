@@ -115,6 +115,17 @@ batch_size      = 2
 stride          = 128
 train_ratio     = 0.90
 epoch           = 10
+# scheduler
+use_scheduler = True
+max_lr        = 0.0004
+min_lr        = 1e-5
+warmup_steps  = 430
+
+# gradient clipping
+max_grad_norm = 1.0
+
+#positional embedding
+use_rope = True
 ```
 
 ### 4. Train
