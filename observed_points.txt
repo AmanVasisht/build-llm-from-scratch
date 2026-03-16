@@ -6,3 +6,9 @@ total_steps = epochs × batches_per_epoch
             = 137,510 steps
 
 1% of 137,510 = ~1375 warmup steps
+
+
+For positional embeddings:
+While calculating frequencies, the value 10000 is a scaling constant which can be changed based on use case. For large value, the oscillations will be slow, for small values, it will be fast. 
+If base is too small, high-frequency signals dominate → positions far apart start looking similar.
+If the base is too large, low frequencies dominate → nearby tokens become harder to distinguish precisely.
