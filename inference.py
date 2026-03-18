@@ -35,6 +35,8 @@ model.eval()
 # ------------------------------
 # 6. Generate tokens autoregressively
 # ------------------------------
+
+print(model)
 max_new_tokens = 15  # Number of tokens to generate
 x = time.time()
 token_ids = generate(
