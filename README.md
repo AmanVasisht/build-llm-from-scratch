@@ -233,7 +233,7 @@ Planned additions to this repository in order of priority:
 
 - Learning rate scheduler (cosine + warmup), gradient clipping, and loss curve visualization to complete the current training pipeline
 - RoPE, RMSNorm, and Grouped Query Attention to align the architecture with modern LLMs like LLaMA and Mistral
-- Fine tuning on a larger real world corpus to produce meaningful generation quality
+- Fine tuning on a larger real world corpus to produce meaningful generation quality (Apply LoRA on existing model)
 - Mixture of Experts (MoE) as a replacement for the dense feed-forward layer
 - Knowledge distillation, RAG, and reasoning model techniques (RLHF, GRPO) as longer term explorations
 
