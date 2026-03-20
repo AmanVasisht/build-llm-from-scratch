@@ -53,7 +53,7 @@ print("Base model loaded")
 # step 2 — freeze and inject lora structure
 for param in model.parameters():
     param.requires_grad = False
-inject_lora(model, rank=8)
+inject_lora(model, rank=8, alpha=8)
 
 # step 3 — load trained lora weights into injected structure
 load_lora_weights(model, "fine_tuning/checkpoints/lora_adapter.pt")

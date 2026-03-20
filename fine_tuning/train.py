@@ -26,7 +26,7 @@ for param in model.parameters():
     param.requires_grad = False
 
 # inject lora
-inject_lora(model, rank=cfg.rank)
+inject_lora(model, rank=cfg.rank, alpha=cfg.alpha)
 
 # sanity check
 total = sum(p.numel() for p in model.parameters())

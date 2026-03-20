@@ -1,4 +1,5 @@
 rank        = 8
+alpha       = 8
 lr          = 1e-4
 num_epochs  = 3
 batch_size  = 4
