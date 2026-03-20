@@ -160,24 +160,31 @@ Token embeddings + positional embeddings → N transformer blocks → final Laye
 
 ---
 
-## LoRA Fine-tuning
-
-LoRA (Low Rank Adaptation) fine-tunes the pretrained model on instruction/response data without updating the original weights.
+## RsLoRA Fine-tuning
 
 ### How It Works
 
-Instead of updating the full W_query and W_value matrices during fine-tuning, two small matrices A and B are injected alongside them:
-
+Two small matrices A and B are injected alongside W_query and W_value:
 ```
-output = W(x) + B(A(x))
+output = W(x) + scaling * B(A(x))
+
+scaling = alpha / rank          # original LoRA
+scaling = alpha / (rank ** 0.5)    # rsLoRA (rank stabilized)
 ```
 
 - W is frozen — pretrained values never change
-- A projects input DOWN to a small bottleneck (rank r)
+- A projects input DOWN to bottleneck dimension (rank r)
 - B projects back UP to original dimension
-- Only A and B are trained
+- scaling controls how much the LoRA branch contributes
+- alpha is a hyperparameter — when alpha = rank, scaling = 1.0
+- B initialized to zeros so LoRA contributes nothing at start
 
-B is initialized to zeros so the LoRA branch contributes nothing at the start, preserving the pretrained model's behavior exactly.
+### Why rsLoRA
+
+As rank increases, the magnitude of B@A grows (more outer products summing up).
+Original LoRA scaling (alpha/rank) overcompensates and suppresses the signal too
+aggressively at higher ranks. rsLoRA (alpha/sqrt(rank)) exactly cancels the
+variance growth, making higher rank training actually beneficial.
 
 ### Parameter Efficiency
 

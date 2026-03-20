@@ -11,6 +11,32 @@ from fine_tuning.lora.inject import inject_lora
 
 
 def merge_lora(model):
+    '''
+    The structure of Query in trf blocks:
+    --> layer.att.W_query  (LoraLayer Object)
+        --> .original (nn.Linear object)
+            --> .weight (nn.Parameter)
+                --> .data (actual tensor [768*768])
+                --> .grad (None when frozen)
+            --> .bias (None since bias = False)
+            --> .training (True during train, False during eval)
+        --> .lora_A (nn.Linear object)
+            --> .weight (nn.Parameter)
+                --> .data (actual tensor [768*768])
+                --> .grad (updated during training)
+            --> .bias (None since bias = False)
+            --> .training (True during train, False during eval)
+        --> .lora_B (nn.Linear object)
+            --> .weight (nn.Parameter)
+                --> .data (actual tensor [768*768])
+                --> .grad (updated during training)
+            --> .bias (None since bias = False)
+            --> .training (True during train, False during eval)
+        --> .rank (int (8))
+        --> .alpha (int or float)
+        --> .scaling (float)
+        --> .training
+    '''
     for layer in model.trf_blocks:
         # merge W_query
         W_q = layer.att.W_query.original.weight
