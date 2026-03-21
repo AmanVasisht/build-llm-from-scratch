@@ -156,7 +156,7 @@ Token embeddings + positional embeddings → N transformer blocks → final Laye
 - **RoPE** — injects positional information by rotating Q and K vectors. No learned parameters, generalizes to longer sequences, encodes relative positions naturally.
 - **LR Scheduler** — warmup phase (lr grows 0 → max_lr) followed by cosine decay (max_lr → min_lr). Prevents unstable early updates and overshooting late in training.
 - **Gradient Clipping** — clips gradient norm to prevent exploding gradients from destabilizing training.
-- **LoRA Fine-tuning** — see below.
+- **RsLoRA Fine-tuning** — see below.
 
 ---
 
@@ -258,7 +258,7 @@ tiktoken
 - DPO (Direct Preference Optimization) as a simpler alternative to RLHF for preference-based alignment
 - Mixture of Experts (MoE) as a replacement for the dense feed-forward layer
 - Quantization for memory-efficient inference
-
+- Follow recent articles and work on superior residual connections approaches
 ---
 
 ## Acknowledgements

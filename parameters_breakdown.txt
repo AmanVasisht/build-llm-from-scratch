@@ -5,6 +5,7 @@ Config used:
     qkv_matrices=3
     projection_space=4
     attention_heads=12
+    rank=8
 
 1) embedding parameters:
     Token embeddings: 50257*768 = 38.59 million
@@ -32,3 +33,8 @@ Config used:
 
 
 TOTAL PARAMETERS: 38.8 m + 85.01 m + 1536 + 38.59 m ~~~ 162 million
+
+If RsLoRA is applied on pre-trained model:
+A matrix weights: 768*8*12*2 = 1,47,456
+B matrix weights: 768*8*12*2 = 1,47,456
+Total LoRA adapter weights: 1,47,456 + 1,47,456 = 2,94,912 (0.18% of total parameters)
