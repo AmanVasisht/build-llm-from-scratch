@@ -30,8 +30,10 @@ token_ids = generate_with_cache(
     idx=text_to_token_ids(prompt, enc),
     max_new_tokens=100,
     context_size=config.context_length,
+    temperature=0.7,
     top_k=25,
-    temperature=1.4
+    top_p=0.9,
+    eos_id=None
 )
 y = time.time()
 print("Time taken:", y - x)
