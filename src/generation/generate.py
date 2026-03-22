@@ -40,27 +40,17 @@ def sample_next_token(logits, temperature, top_k, top_p):
     else:
         return torch.argmax(logits, dim=-1, keepdim=True)
 
-def generate(model, idx, max_new_tokens, context_size, temperature=0.0, top_k=None, eos_id=None):
-    """Original generate function — no KV cache, works as before."""
+def generate(model, idx, max_new_tokens, context_size,
+             temperature=0.0, top_k=None, top_p=None, eos_id=None):
+
     for _ in range(max_new_tokens):
         idx_cond = idx[:, -context_size:]
         with torch.no_grad():
             logits, _ = model(idx_cond)
-        logits = logits[:, -1, :]
 
-        if top_k is not None:
-            top_logits, _ = torch.topk(logits, top_k)
-            min_val = top_logits[:, -1]
-            logits = torch.where(logits < min_val, torch.tensor(float("-inf")).to(logits.device), logits)
+        idx_next = sample_next_token(logits, temperature, top_k, top_p)
 
-        if temperature > 0.0:
-            logits = logits / temperature
-            probs = torch.softmax(logits, dim=-1)
-            idx_next = torch.multinomial(probs, num_samples=1)
-        else:
-            idx_next = torch.argmax(logits, dim=-1, keepdim=True)
-
-        if idx_next == eos_id:
+        if eos_id is not None and idx_next == eos_id:
             break
 
         idx = torch.cat((idx, idx_next), dim=1)

@@ -41,11 +41,13 @@ max_new_tokens = 15  # Number of tokens to generate
 x = time.time()
 token_ids = generate(
     model=model,
-    idx=text_to_token_ids("I think he is", tokenizer),
-    max_new_tokens=15,
+    idx=text_to_token_ids("Where did the author find the couple?", tokenizer),
+    max_new_tokens=100,
     context_size=config.context_length,
+    temperature=0.7,
     top_k=25,
-    temperature=1.4
+    top_p=0.9,
+    eos_id=None
 )
 y = time.time()
 print("Time required to generate without cache",y-x)
