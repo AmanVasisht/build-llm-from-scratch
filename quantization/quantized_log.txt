@@ -1,0 +1,80 @@
+quantized trf_blocks.0.att.W_query | shape torch.Size([768, 768]) | scale 936.6555
+quantized trf_blocks.0.att.W_key | shape torch.Size([768, 768]) | scale 1052.8640
+quantized trf_blocks.0.att.W_value | shape torch.Size([768, 768]) | scale 1238.4088
+quantized trf_blocks.0.att.out_proj | shape torch.Size([768, 768]) | scale 1192.0149
+quantized trf_blocks.0.ff.layers.0 | shape torch.Size([3072, 768]) | scale 729.0368
+quantized trf_blocks.0.ff.layers.2 | shape torch.Size([768, 3072]) | scale 753.3887
+quantized trf_blocks.1.att.W_query | shape torch.Size([768, 768]) | scale 889.1107
+quantized trf_blocks.1.att.W_key | shape torch.Size([768, 768]) | scale 855.5726
+quantized trf_blocks.1.att.W_value | shape torch.Size([768, 768]) | scale 1346.3838
+quantized trf_blocks.1.att.out_proj | shape torch.Size([768, 768]) | scale 1217.1328
+quantized trf_blocks.1.ff.layers.0 | shape torch.Size([3072, 768]) | scale 735.3082
+quantized trf_blocks.1.ff.layers.2 | shape torch.Size([768, 3072]) | scale 663.4113
+quantized trf_blocks.2.att.W_query | shape torch.Size([768, 768]) | scale 930.0378
+quantized trf_blocks.2.att.W_key | shape torch.Size([768, 768]) | scale 910.2372
+quantized trf_blocks.2.att.W_value | shape torch.Size([768, 768]) | scale 1117.9489
+quantized trf_blocks.2.att.out_proj | shape torch.Size([768, 768]) | scale 1115.6897
+quantized trf_blocks.2.ff.layers.0 | shape torch.Size([3072, 768]) | scale 854.6138
+quantized trf_blocks.2.ff.layers.2 | shape torch.Size([768, 3072]) | scale 692.6525
+quantized trf_blocks.3.att.W_query | shape torch.Size([768, 768]) | scale 755.3691
+quantized trf_blocks.3.att.W_key | shape torch.Size([768, 768]) | scale 802.2092
+quantized trf_blocks.3.att.W_value | shape torch.Size([768, 768]) | scale 1104.2881
+quantized trf_blocks.3.att.out_proj | shape torch.Size([768, 768]) | scale 1087.9077
+quantized trf_blocks.3.ff.layers.0 | shape torch.Size([3072, 768]) | scale 877.4280
+quantized trf_blocks.3.ff.layers.2 | shape torch.Size([768, 3072]) | scale 731.7213
+quantized trf_blocks.4.att.W_query | shape torch.Size([768, 768]) | scale 959.3712
+quantized trf_blocks.4.att.W_key | shape torch.Size([768, 768]) | scale 887.9685
+quantized trf_blocks.4.att.W_value | shape torch.Size([768, 768]) | scale 1068.3076
+quantized trf_blocks.4.att.out_proj | shape torch.Size([768, 768]) | scale 1019.5421
+quantized trf_blocks.4.ff.layers.0 | shape torch.Size([3072, 768]) | scale 897.9408
+quantized trf_blocks.4.ff.layers.2 | shape torch.Size([768, 3072]) | scale 716.3926
+quantized trf_blocks.5.att.W_query | shape torch.Size([768, 768]) | scale 872.8839
+quantized trf_blocks.5.att.W_key | shape torch.Size([768, 768]) | scale 825.0479
+quantized trf_blocks.5.att.W_value | shape torch.Size([768, 768]) | scale 969.6564
+quantized trf_blocks.5.att.out_proj | shape torch.Size([768, 768]) | scale 1042.0460
+quantized trf_blocks.5.ff.layers.0 | shape torch.Size([3072, 768]) | scale 861.5889
+quantized trf_blocks.5.ff.layers.2 | shape torch.Size([768, 3072]) | scale 602.9752
+quantized trf_blocks.6.att.W_query | shape torch.Size([768, 768]) | scale 937.1422
+quantized trf_blocks.6.att.W_key | shape torch.Size([768, 768]) | scale 845.3316
+quantized trf_blocks.6.att.W_value | shape torch.Size([768, 768]) | scale 1106.0265
+quantized trf_blocks.6.att.out_proj | shape torch.Size([768, 768]) | scale 1053.0924
+quantized trf_blocks.6.ff.layers.0 | shape torch.Size([3072, 768]) | scale 901.7816
+quantized trf_blocks.6.ff.layers.2 | shape torch.Size([768, 3072]) | scale 640.1013
+quantized trf_blocks.7.att.W_query | shape torch.Size([768, 768]) | scale 864.2274
+quantized trf_blocks.7.att.W_key | shape torch.Size([768, 768]) | scale 740.4177
+quantized trf_blocks.7.att.W_value | shape torch.Size([768, 768]) | scale 1017.6823
+quantized trf_blocks.7.att.out_proj | shape torch.Size([768, 768]) | scale 1021.0858
+quantized trf_blocks.7.ff.layers.0 | shape torch.Size([3072, 768]) | scale 866.9739
+quantized trf_blocks.7.ff.layers.2 | shape torch.Size([768, 3072]) | scale 607.2741
+quantized trf_blocks.8.att.W_query | shape torch.Size([768, 768]) | scale 926.0031
+quantized trf_blocks.8.att.W_key | shape torch.Size([768, 768]) | scale 757.4370
+quantized trf_blocks.8.att.W_value | shape torch.Size([768, 768]) | scale 1034.3054
+quantized trf_blocks.8.att.out_proj | shape torch.Size([768, 768]) | scale 928.6860
+quantized trf_blocks.8.ff.layers.0 | shape torch.Size([3072, 768]) | scale 835.5851
+quantized trf_blocks.8.ff.layers.2 | shape torch.Size([768, 3072]) | scale 745.9329
+quantized trf_blocks.9.att.W_query | shape torch.Size([768, 768]) | scale 884.0452
+quantized trf_blocks.9.att.W_key | shape torch.Size([768, 768]) | scale 788.1892
+quantized trf_blocks.9.att.W_value | shape torch.Size([768, 768]) | scale 941.4721
+quantized trf_blocks.9.att.out_proj | shape torch.Size([768, 768]) | scale 935.0019
+quantized trf_blocks.9.ff.layers.0 | shape torch.Size([3072, 768]) | scale 829.5191
+quantized trf_blocks.9.ff.layers.2 | shape torch.Size([768, 3072]) | scale 842.2933
+quantized trf_blocks.10.att.W_query | shape torch.Size([768, 768]) | scale 854.1645
+quantized trf_blocks.10.att.W_key | shape torch.Size([768, 768]) | scale 869.9324
+quantized trf_blocks.10.att.W_value | shape torch.Size([768, 768]) | scale 856.8155
+quantized trf_blocks.10.att.out_proj | shape torch.Size([768, 768]) | scale 972.2717
+quantized trf_blocks.10.ff.layers.0 | shape torch.Size([3072, 768]) | scale 735.0349
+quantized trf_blocks.10.ff.layers.2 | shape torch.Size([768, 3072]) | scale 753.3790
+quantized trf_blocks.11.att.W_query | shape torch.Size([768, 768]) | scale 810.5454
+quantized trf_blocks.11.att.W_key | shape torch.Size([768, 768]) | scale 856.1719
+quantized trf_blocks.11.att.W_value | shape torch.Size([768, 768]) | scale 834.0244
+quantized trf_blocks.11.att.out_proj | shape torch.Size([768, 768]) | scale 868.5472
+quantized trf_blocks.11.ff.layers.0 | shape torch.Size([3072, 768]) | scale 701.4130
+quantized trf_blocks.11.ff.layers.2 | shape torch.Size([768, 3072]) | scale 698.9730
+quantized out_head | shape torch.Size([50257, 768]) | scale 168.2173
+quantized model saved to quantization/quantized_weights.pt
+
+
+# comparison of only weights as original trained model had model weights and optimizer state saved as well. Thus actual size was around 1.8GB.
+original model:   622.3 MB -- [Optimizer state size: 1.2 GB, thus total being 1.8 GB]
+quantized model:  117.9 MB
+reduction:        5.3x smaller
