@@ -3,7 +3,7 @@ Building a Large Language Model from scratch: implementing tokenization, transfo
 
 # Build LLM From Scratch
 
-A GPT-2 style autoregressive language model implemented from scratch in PyTorch. The project covers the full pipeline — tokenization, dataset preparation, model architecture, training, text generation, and LoRA-based instruction fine-tuning — with no use of HuggingFace or any high-level ML framework.
+A GPT-2 style autoregressive language model implemented from scratch in PyTorch. The project covers the full pipeline; tokenization, dataset preparation, model architecture, training, text generation, and LoRA-based instruction fine-tuning; with no use of HuggingFace or any high-level ML framework.
 
 ---
 
@@ -84,7 +84,7 @@ Tokenizer (tiktoken GPT-2 BPE)
 Sliding Window Dataset  ──►  DataLoader (train / val split)
    │
    ▼
-GPTModel (Pretraining — self-supervised, next token prediction)
+GPTModel (Pretraining; self-supervised, next token prediction)
    │
    ▼
 Checkpoint saved to checkpoints/
@@ -140,7 +140,7 @@ python inference.py
 Scaled dot-product causal self-attention. Causal mask registered as a buffer. Q, K, V projections are separate linear layers with optional bias controlled by `qkv_bias`.
 
 ### TransformerBlock
-Pre-LayerNorm pattern — normalization applied before attention and feed-forward sublayers, with residual connections around both.
+Pre-LayerNorm pattern; normalization applied before attention and feed-forward sublayers, with residual connections around both.
 
 ### FeedForward
 Two linear layers with 4x hidden dimension expansion, using GELU activation (tanh approximation matching GPT-2's original implementation).
@@ -152,11 +152,12 @@ Token embeddings + positional embeddings → N transformer blocks → final Laye
 
 ## Implemented Features
 
-- **KV Cache** — caches K and V vectors during generation, avoids recomputing for previous tokens. ~2x faster for 15 token generation, benefit grows with sequence length.
-- **RoPE** — injects positional information by rotating Q and K vectors. No learned parameters, generalizes to longer sequences, encodes relative positions naturally.
-- **LR Scheduler** — warmup phase (lr grows 0 → max_lr) followed by cosine decay (max_lr → min_lr). Prevents unstable early updates and overshooting late in training.
-- **Gradient Clipping** — clips gradient norm to prevent exploding gradients from destabilizing training.
-- **RsLoRA Fine-tuning** — see below.
+- **KV Cache**; caches K and V vectors during generation, avoids recomputing for previous tokens. ~2x faster for 15 token generation, benefit grows with sequence length.
+- **RoPE**; injects positional information by rotating Q and K vectors. No learned parameters, generalizes to longer sequences, encodes relative positions naturally.
+- **LR Scheduler**; warmup phase (lr grows 0 → max_lr) followed by cosine decay (max_lr → min_lr). Prevents unstable early updates and overshooting late in training.
+- **Gradient Clipping**; clips gradient norm to prevent exploding gradients from destabilizing training.
+- **Misc. Features**; implemented top k, top p, temperature features on top of generation.
+- **RsLoRA Fine-tuning**; see below.
 
 ---
 
@@ -172,11 +173,11 @@ scaling = alpha / rank          # original LoRA
 scaling = alpha / (rank ** 0.5)    # rsLoRA (rank stabilized)
 ```
 
-- W is frozen — pretrained values never change
+- W is frozen; pretrained values never change
 - A projects input DOWN to bottleneck dimension (rank r)
 - B projects back UP to original dimension
 - scaling controls how much the LoRA branch contributes
-- alpha is a hyperparameter — when alpha = rank, scaling = 1.0
+- alpha is a hyperparameter; when alpha = rank, scaling = 1.0
 - B initialized to zeros so LoRA contributes nothing at start
 
 ### Why rsLoRA
@@ -196,7 +197,7 @@ variance growth, making higher rank training actually beneficial.
 
 ### Dataset Format
 
-Uses Alpaca format — JSON file with `instruction`, `input`, and `output` fields. Formatted into a single sequence before tokenization:
+Uses Alpaca format; JSON file with `instruction`, `input`, and `output` fields. Formatted into a single sequence before tokenization:
 
 ```
 ### Instruction:
@@ -228,7 +229,7 @@ After fine-tuning, LoRA weights can be merged directly into the base model:
 W_final = W + B @ A
 ```
 
-The merged model has identical structure to the original — no LoRA machinery needed at inference.
+The merged model has identical structure to the original; no LoRA machinery needed at inference.
 
 ---
 
@@ -269,4 +270,4 @@ This project follows and implements concepts from the book
 The goal is to reproduce, experiment with, and deepen understanding of LLM architectures by implementing them step-by-step.
 
 ## Related Writing
-- [Positional Embeddings in LLMs — Sinusoidal, Learned and RoPE](https://medium.com/p/bfd88cedd4c4?postPublishedType=initial)
+- [Positional Embeddings in LLMs; Sinusoidal, Learned and RoPE](https://medium.com/p/bfd88cedd4c4?postPublishedType=initial)
