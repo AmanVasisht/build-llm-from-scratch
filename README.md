@@ -1,9 +1,9 @@
 # build-llm-from-scratch
-Building a Large Language Model from scratch: implementing tokenization, transformer architecture, training pipeline, optimization techniques, and LoRA fine-tuning.
+Building a Large Language Model from scratch: implementing tokenization, transformer architecture, training pipeline, optimization techniques, LoRA fine-tuning, and quantization.
 
 # Build LLM From Scratch
 
-A GPT-2 style autoregressive language model implemented from scratch in PyTorch. The project covers the full pipeline; tokenization, dataset preparation, model architecture, training, text generation, and LoRA-based instruction fine-tuning; with no use of HuggingFace or any high-level ML framework.
+A GPT-2 style autoregressive language model implemented from scratch in PyTorch. The project covers the full pipeline; tokenization, dataset preparation, model architecture, training, text generation, LoRA-based instruction fine-tuning, and post training quantization; with no use of HuggingFace or any high-level ML framework.
 
 ---
 
@@ -63,6 +63,13 @@ build_llm_from_scratch/
 │   ├── train.py                         # LoRA fine-tuning training loop
 │   └── merge_lora.py                    # Merge LoRA adapter into base model weights
 │
+├── quantization/
+│   ├── __init__.py
+│   ├── quantize.py                      # quantize_tensor, dequantize_tensor,
+│   │                                      quantize_model, save_quantized,
+│   │                                      load_and_dequantize, compare_sizes
+│   └── run_quantization.py              # loads model, runs quantization, saves output
+│
 ├── main.py                              # Pretrain the model
 ├── inference.py                         # Load checkpoint and generate text
 ├── inference_kv.py                      # Generate text with KV cache optimization
@@ -101,6 +108,12 @@ Merge LoRA weights into base model  ──►  merged_model.pth
    │
    ▼
 Inference with merged model
+   │
+   ▼
+PTQ Quantization (Post Training Quantization)
+   ├── Convert float32 weights to int8
+   ├── Compute and store scale factor per layer
+   └── 5.3x smaller model (622 MB → 117 MB)
 ```
 
 ---
@@ -132,6 +145,11 @@ python fine_tuning/merge_lora.py
 python inference.py
 ```
 
+### 6. Quantize model
+```bash
+python quantization/run_quantization.py
+```
+
 ---
 
 ## Model Architecture
@@ -152,16 +170,17 @@ Token embeddings + positional embeddings → N transformer blocks → final Laye
 
 ## Implemented Features
 
-- **KV Cache**; caches K and V vectors during generation, avoids recomputing for previous tokens. ~2x faster for 15 token generation, benefit grows with sequence length.
-- **RoPE**; injects positional information by rotating Q and K vectors. No learned parameters, generalizes to longer sequences, encodes relative positions naturally.
-- **LR Scheduler**; warmup phase (lr grows 0 → max_lr) followed by cosine decay (max_lr → min_lr). Prevents unstable early updates and overshooting late in training.
-- **Gradient Clipping**; clips gradient norm to prevent exploding gradients from destabilizing training.
-- **Misc. Features**; implemented top k, top p, temperature features on top of generation.
-- **RsLoRA Fine-tuning**; see below.
+- **KV Cache**: caches K and V vectors during generation, avoids recomputing for previous tokens. ~2x faster for 15 token generation, benefit grows with sequence length.
+- **RoPE**: injects positional information by rotating Q and K vectors. No learned parameters, generalizes to longer sequences, encodes relative positions naturally.
+- **LR Scheduler**: warmup phase (lr grows 0 → max_lr) followed by cosine decay (max_lr → min_lr). Prevents unstable early updates and overshooting late in training.
+- **Gradient Clipping**: clips gradient norm to prevent exploding gradients from destabilizing training.
+- **Sampling Strategies**: temperature scaling, top-k filtering, and top-p (nucleus) sampling implemented on top of generation for controlled and diverse text output.
+- **rsLoRA Fine-tuning**: see below.
+- **PTQ Quantization**: post training quantization converts float32 weights to int8 by computing a scale factor per layer. Reduces model from 622 MB to 117 MB (5.3x smaller) with minimal quality loss. Includes quantize, save, load and dequantize, and size comparison utilities.
 
 ---
 
-## RsLoRA Fine-tuning
+## rsLoRA Fine-tuning
 
 ### How It Works
 
@@ -169,7 +188,7 @@ Two small matrices A and B are injected alongside W_query and W_value:
 ```
 output = W(x) + scaling * B(A(x))
 
-scaling = alpha / rank          # original LoRA
+scaling = alpha / rank             # original LoRA
 scaling = alpha / (rank ** 0.5)    # rsLoRA (rank stabilized)
 ```
 
@@ -182,10 +201,7 @@ scaling = alpha / (rank ** 0.5)    # rsLoRA (rank stabilized)
 
 ### Why rsLoRA
 
-As rank increases, the magnitude of B@A grows (more outer products summing up).
-Original LoRA scaling (alpha/rank) overcompensates and suppresses the signal too
-aggressively at higher ranks. rsLoRA (alpha/sqrt(rank)) exactly cancels the
-variance growth, making higher rank training actually beneficial.
+As rank increases, the magnitude of B@A grows (more outer products summing up). Original LoRA scaling (alpha/rank) overcompensates and suppresses the signal too aggressively at higher ranks. rsLoRA (alpha/sqrt(rank)) exactly cancels the variance growth, making higher rank training actually beneficial.
 
 ### Parameter Efficiency
 
@@ -233,6 +249,35 @@ The merged model has identical structure to the original; no LoRA machinery need
 
 ---
 
+## PTQ Quantization
+
+### How It Works
+
+Every linear layer weight is converted from float32 to int8:
+
+```
+scale     = 127 / max_absolute_value_of_tensor
+quantized = round(tensor * scale).clamp(-128, 127).to(int8)
+```
+
+The scale factor is stored alongside the quantized weights. To dequantize:
+
+```
+original ≈ quantized.to(float32) / scale
+```
+
+Small quantization error is introduced by the rounding step and cannot be recovered perfectly. LayerNorm parameters are skipped: too few parameters to meaningfully reduce size, and sensitive to precision loss.
+
+### Size Reduction
+
+| Format | Size |
+|---|---|
+| float32 weights | 622 MB |
+| int8 quantized | 117 MB |
+| Reduction | 5.3x smaller |
+
+---
+
 ## Training Details
 
 | Setting | Value |
@@ -253,13 +298,15 @@ torch
 tiktoken
 ```
 
+---
+
 ## Future Prospects
 
 - RMSNorm and Grouped Query Attention to align architecture with LLaMA/Mistral
 - DPO (Direct Preference Optimization) as a simpler alternative to RLHF for preference-based alignment
 - Mixture of Experts (MoE) as a replacement for the dense feed-forward layer
-- Quantization for memory-efficient inference
 - Follow recent articles and work on superior residual connections approaches
+
 ---
 
 ## Acknowledgements
@@ -270,4 +317,4 @@ This project follows and implements concepts from the book
 The goal is to reproduce, experiment with, and deepen understanding of LLM architectures by implementing them step-by-step.
 
 ## Related Writing
-- [Positional Embeddings in LLMs; Sinusoidal, Learned and RoPE](https://medium.com/p/bfd88cedd4c4?postPublishedType=initial)
+- [Positional Embeddings in LLMs: Sinusoidal, Learned and RoPE](https://medium.com/p/bfd88cedd4c4?postPublishedType=initial)
