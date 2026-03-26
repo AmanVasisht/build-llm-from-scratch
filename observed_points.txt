@@ -12,3 +12,14 @@ For positional embeddings:
 While calculating frequencies, the value 10000 is a scaling constant which can be changed based on use case. For large value, the oscillations will be slow, for small values, it will be fast. 
 If base is too small, high-frequency signals dominate → positions far apart start looking similar.
 If the base is too large, low frequencies dominate → nearby tokens become harder to distinguish precisely.
+
+Base model & SFT
+So this was basically self supervised training of GPT-2, i.e. base model. Same thing that bigger LLMs like llama, gemini, phi etc do, they all have their own base model first. Then on top of this SFT is done to make it more conversational and human friendly. SFT needs structured data with instructions, inputs, outputs in some specific format.
+
+Inferencing (how it actually works when deployed)
+User types prompt → tokenisation + encoding → embeddings for those tokens are picked, positional encodings also get added here → goes into transformer → causal masking is there, meaning token at position i can only see tokens before it, not ahead → Q, K, V computed for all tokens → all this till here is parallel, all input tokens processed at once
+now K and V of all these tokens get saved as KV cache. logits produced but only last position's logits are used to get the first new token. sampling strategy decided here (greedy/top-k/top-p/temperature etc)
+sequential part starts now
+new token's embedding picked (+ positional encoding) → only Q computed freshly for this token, K and V not recomputed for old tokens, fetched from cache → attention done between new Q and cached K, V → new token's K and V computed and added to KV cache → logits for next token → sampling again → keeps going like this till end token or max length hit
+
+imp thing - Q is always computed fresh. K and V are cached for previous tokens, only computed new for whatever current token is being added.
