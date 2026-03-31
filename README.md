@@ -307,6 +307,7 @@ tiktoken
 - Mixture of Experts (MoE) as a replacement for the dense feed-forward layer
 - Follow recent articles and work on superior residual connections approaches
 - Testing of quantized models, quantize into float16, bfloat16 and compare with int 8 results.
+- Work on evaluation and deployment. (high priority)
 ---
 
 ## Acknowledgements

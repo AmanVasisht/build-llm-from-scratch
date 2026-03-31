@@ -23,3 +23,8 @@ sequential part starts now
 new token's embedding picked (+ positional encoding) → only Q computed freshly for this token, K and V not recomputed for old tokens, fetched from cache → attention done between new Q and cached K, V → new token's K and V computed and added to KV cache → logits for next token → sampling again → keeps going like this till end token or max length hit
 
 imp thing - Q is always computed fresh. K and V are cached for previous tokens, only computed new for whatever current token is being added.
+
+
+
+R&D focus: probability transition matrix application.
+goal: using less parameters than current model with similar or better accuracy.

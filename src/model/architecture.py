@@ -66,7 +66,7 @@ class MultiHeadAttention(nn.Module):
         context_vec = self.out_proj(context_vec)
 
         return context_vec, new_cache
-
+    
 
 class TransformerBlock(nn.Module):
     def __init__(self, cfg):
