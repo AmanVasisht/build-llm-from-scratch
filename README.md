@@ -319,3 +319,4 @@ The goal is to reproduce, experiment with, and deepen understanding of LLM archi
 
 ## Related Writing
 - [Positional Embeddings in LLMs: Sinusoidal, Learned and RoPE](https://medium.com/p/bfd88cedd4c4?postPublishedType=initial)
+- [Complete architectural pipeline of GPT-2 explained intuitively along with visuals](https://medium.com/@amanvasisht31/from-raw-text-to-language-model-building-gpt-2-from-scratch-b0f3068d16b6)
